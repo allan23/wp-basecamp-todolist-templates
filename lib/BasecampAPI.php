@@ -109,6 +109,22 @@ class BasecampAPI {
             return false;
         }
         set_transient($user_ID . "_BC_AT", $response->access_token, $response->expires_in);  # Save the Access Token as a transient because access tokens expire after two weeks.
+
+        return $response->access_token;
+    }
+
+    /**
+     * Get User Token
+     * Will retrieve token transient, if expired will run the refreshToken() method to retrieve new access token.
+     * @return mixed $token Returns saved access token or false.
+     */
+    function getUserToken() {
+        $user_ID = get_current_user_id();
+        $token = get_transient($user_ID . "_BC_AT");
+        if ($token === false) { # access token has expired.
+            $token = $this->refreshToken();
+        }
+        return $token;
     }
 
 }

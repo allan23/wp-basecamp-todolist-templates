@@ -25,8 +25,7 @@ function bc_page() {
 
 function bc_page2() {
     $BC = new BasecampAPI();
-    $user_ID = get_current_user_id();
-    $token = get_transient($user_ID . "_BC_AT");
+    $token=$BC->getUserToken();
     $response = $BC->authorize($token);
     if ($response) {
         echo "<pre>";
