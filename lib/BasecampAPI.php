@@ -9,7 +9,8 @@ class BasecampAPI {
 
     var $auth_url = "https://launchpad.37signals.com";  # URL for 37Signals API and authentication.
     var $last_error; # Last error message received.
-
+    private $token; # The User's Access Token
+    
     /**
      * User Authentication URL
      * This function will return the URL the user needs to visit to authenticate.
@@ -53,12 +54,11 @@ class BasecampAPI {
     /**
      * API Authorization / List Available Accounts
      * This function will call the API and return a list of available Basecamp accounts to access (otherwise false).
-     * @param string $token Access Token for call.
      * @return mixed Returns array of accounts.  Otherwise returns false.
      */
-    function getAccounts($token) {
+    function getAccounts() {
         $args = array();
-        $args['headers']['Authorization'] = 'Bearer "' . $token . '"';
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
         $response = wp_remote_get($this->auth_url . "/authorization.json", $args);
         $response = json_decode($response['body']);
 
@@ -80,12 +80,11 @@ class BasecampAPI {
     /**
      * 
      * @param string $url Basecamp API URL.
-     * @param string $token Access Token.
      * @return mixed Returns array of projects for account or false if there is an error.
      */
-    function getProjects($url, $token) {
+    function getProjects($url) {
         $args = array();
-        $args['headers']['Authorization'] = 'Bearer "' . $token . '"';
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
         $response = wp_remote_get($url . "/projects.json", $args);
         $response = json_decode($response['body']);
         if (isset($response->error)) {
@@ -95,10 +94,14 @@ class BasecampAPI {
         return $response;
     }
 
+    /**
+     * Retrieves new access token from API based on the user's refresh token.
+     * @return mixed Returns access token or false.
+     */
     function refreshToken() {
         $client_id = get_option("BC_ClientID");
         $client_secret = get_option("BC_Secret");
-        $redirect_url = get_option("BC_Redirect");
+        $redirect_url = menu_page_url("todolist", false);
         $user_ID = get_current_user_id();
         $refresh_token = get_user_meta($user_ID, "BC_RT", true);
         $url = $this->auth_url . "/authorization/token?type=refresh&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&refresh_token=" . $refresh_token;
@@ -116,7 +119,6 @@ class BasecampAPI {
     /**
      * Get User Token
      * Will retrieve token transient, if expired will run the refreshToken() method to retrieve new access token.
-     * @return mixed $token Returns saved access token or false.
      */
     function getUserToken() {
         $user_ID = get_current_user_id();
@@ -124,7 +126,7 @@ class BasecampAPI {
         if ($token === false) { # access token has expired.
             $token = $this->refreshToken();
         }
-        return $token;
+        $this->token=$token;
     }
 
 }

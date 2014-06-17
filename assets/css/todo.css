@@ -1,0 +1,35 @@
+.bct_box{
+    background:#ffffff;
+    max-width:640;
+    -moz-border-radius: 10px;
+    -webkit-border-radius:10px;
+    border-radius:10px;
+    border:1px solid #222222;
+    float:left;
+    margin-right:15px;
+    margin-top:15px;
+}
+.bct_innerbox {
+    float:left;
+    width:300px;
+}
+.bct_content{
+    padding:15px;
+
+}
+.bct_center{
+    text-align: center;
+}
+.bct_left{
+    text-align: left;
+}
+.bct_content h2{
+    border-bottom:1px dotted #222222;
+    padding-top:0;
+    clear:both;
+}
+
+#bc_logo{
+    float:left;
+
+}
