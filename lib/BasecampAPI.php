@@ -51,12 +51,12 @@ class BasecampAPI {
     }
 
     /**
-     * API Authorization
+     * API Authorization / List Available Accounts
      * This function will call the API and return a list of available Basecamp accounts to access (otherwise false).
      * @param string $token Access Token for call.
      * @return mixed Returns array of accounts.  Otherwise returns false.
      */
-    function authorize($token) {
+    function getAccounts($token) {
         $args = array();
         $args['headers']['Authorization'] = 'Bearer "' . $token . '"';
         $response = wp_remote_get($this->auth_url . "/authorization.json", $args);
