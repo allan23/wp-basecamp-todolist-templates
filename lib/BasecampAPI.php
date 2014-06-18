@@ -19,7 +19,7 @@ class BasecampAPI {
 
     function authenticate() {
         $client_id = get_option("BC_ClientID");
-        $redirect_url = get_option("BC_Redirect");
+        $redirect_url = menu_page_url("todolist_auth", false);
         $url = $this->auth_url . "/authorization/new?type=web_server&client_id=" . $client_id . "&redirect_uri=" . $redirect_url;
         return $url;
     }
@@ -33,7 +33,7 @@ class BasecampAPI {
     function getToken($code) {
         $client_id = get_option("BC_ClientID");
         $client_secret = get_option("BC_Secret");
-        $redirect_url = get_option("BC_Redirect");
+        $redirect_url = menu_page_url("todolist_auth", false);
         $url = $this->auth_url . "/authorization/token?type=web_server&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&code=" . $code;
         $response = wp_remote_post($url);
         $response = json_decode($response['body']);
@@ -79,10 +79,11 @@ class BasecampAPI {
 
     /**
      * 
-     * @param string $url Basecamp API URL.
+     * @param string $account_id Basecamp Account ID.
      * @return mixed Returns array of projects for account or false if there is an error.
      */
-    function getProjects($url) {
+    function getProjects($account_id) {
+        $url="https://basecamp.com/" . $account_id . "/api/v1";
         $args = array();
         $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
         $response = wp_remote_get($url . "/projects.json", $args);
@@ -101,7 +102,7 @@ class BasecampAPI {
     function refreshToken() {
         $client_id = get_option("BC_ClientID");
         $client_secret = get_option("BC_Secret");
-        $redirect_url = menu_page_url("todolist", false);
+        $redirect_url = menu_page_url("todolist_auth", false);
         $user_ID = get_current_user_id();
         $refresh_token = get_user_meta($user_ID, "BC_RT", true);
         $url = $this->auth_url . "/authorization/token?type=refresh&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&refresh_token=" . $refresh_token;
