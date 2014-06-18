@@ -7,31 +7,18 @@
     <div class="wrap">
         <div class="bct_box">
             <div class="bct_content">
-                <h2><img src="<?php echo plugin_dir_url(__FILE__) . "../assets/images/basecampicon_lg.png"; ?>" id="bc_logo" alt="Basecamp"> Your Projects</h2>
+                <h2><img src="<?php echo plugin_dir_url(__FILE__) . "../assets/images/basecampicon_lg.png"; ?>" id="bc_logo" alt="Basecamp"> Assign Todo List to Project</h2>
 
 
                 <div class="bct_content bct_left">
-                    Select a project: <br><br>
-                    <table class="widefat" >
-                        <thead>
-                            <tr>
-                                <th>Project Name</th>
-
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    Select a project: <select>
+                        <option>--- Select a Project ---</option>
                             <?php foreach ($projects as $project): ?>
-                                <tr>
-                                    <td><?php echo $project->name; ?><br>
-                                        <small><?php echo $project->description; ?></small></td>
-
-                                    <td><a href="<?php menu_page_url("todolist", true); ?>&amp;project=<?php echo $project->id; ?>" class="button-primary">Select</a></td>
-                                </tr>
+                        <option value="<?php echo esc_attr($project->id);?>"><?php echo esc_attr($project->name); ?></option>
+                              
                             <?php endforeach; ?>
-                  
-                        </tbody>
-                    </table>
+                    </select>
+                        
 
 
                 </div>

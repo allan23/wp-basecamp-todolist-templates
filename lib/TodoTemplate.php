@@ -6,6 +6,7 @@
 class TodoTemplate extends BasecampAPI {
 
     function __construct() {
+
         add_action("admin_init", array($this, "settings"));
         add_action("init", array($this, "createPostType"));
         add_action("admin_menu", array($this, "pageSetup"));
@@ -28,6 +29,7 @@ class TodoTemplate extends BasecampAPI {
     }
 
     function settings() {
+        $this->user_ID = get_current_user_id();
         register_setting("todosetup", "BC_ClientID");
         register_setting("todosetup", "BC_Secret");
     }
@@ -58,7 +60,7 @@ class TodoTemplate extends BasecampAPI {
 
         $token = $this->getUserToken();
         $accounts = $this->getAccounts();
-      
+
         ob_start();
         if (count($accounts == 1)) {
             $projects = $this->getProjects($accounts[0]->id);

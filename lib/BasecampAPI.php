@@ -10,7 +10,8 @@ class BasecampAPI {
     var $auth_url = "https://launchpad.37signals.com";  # URL for 37Signals API and authentication.
     var $last_error; # Last error message received.
     private $token; # The User's Access Token
-    
+    var $user_ID; # The current logged in user's ID.
+
     /**
      * User Authentication URL
      * This function will return the URL the user needs to visit to authenticate.
@@ -45,9 +46,9 @@ class BasecampAPI {
 
         # Save the tokens for the current user:
 
-        $user_ID = get_current_user_id();
-        set_transient($user_ID . "_BC_AT", $response->access_token, $response->expires_in);  # Save the Access Token as a transient because access tokens expire after two weeks.
-        update_user_meta($user_ID, "BC_RT", $response->refresh_token); # Save the Refresh Token as user meta so that it can be used to retrieve a new Access Token.
+
+        set_transient($this->user_ID . "_BC_AT", $response->access_token, $response->expires_in);  # Save the Access Token as a transient because access tokens expire after two weeks.
+        update_user_meta($this->user_ID, "BC_RT", $response->refresh_token); # Save the Refresh Token as user meta so that it can be used to retrieve a new Access Token.
         return true;
     }
 
@@ -57,11 +58,14 @@ class BasecampAPI {
      * @return mixed Returns array of accounts.  Otherwise returns false.
      */
     function getAccounts() {
-        $args = array();
-        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
-        $response = wp_remote_get($this->auth_url . "/authorization.json", $args);
-        $response = json_decode($response['body']);
-
+        $response = get_transient($this->user_ID . "_BC_Acc");
+        if ($response === false) {
+            $args = array();
+            $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+            $response = wp_remote_get($this->auth_url . "/authorization.json", $args);
+            $response = json_decode($response['body']);
+            set_transient($this->user_ID . "_BC_Acc", $response, 300);
+        }
         if (isset($response->error)) {
             $this->last_error = $response->error;
             return false;
@@ -83,11 +87,16 @@ class BasecampAPI {
      * @return mixed Returns array of projects for account or false if there is an error.
      */
     function getProjects($account_id) {
-        $url="https://basecamp.com/" . $account_id . "/api/v1";
-        $args = array();
-        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
-        $response = wp_remote_get($url . "/projects.json", $args);
-        $response = json_decode($response['body']);
+
+        $response = get_transient($this->user_ID . "_BC_Pro");
+        if ($response === false) {
+            $url = "https://basecamp.com/" . $account_id . "/api/v1";
+            $args = array();
+            $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+            $response = wp_remote_get($url . "/projects.json", $args);
+            $response = json_decode($response['body']);
+            set_transient($this->user_ID . "_BC_Pro", $response, 300);
+        }
         if (isset($response->error)) {
             $this->last_error = $response->error;
             return false;
@@ -103,8 +112,8 @@ class BasecampAPI {
         $client_id = get_option("BC_ClientID");
         $client_secret = get_option("BC_Secret");
         $redirect_url = menu_page_url("todolist_auth", false);
-        $user_ID = get_current_user_id();
-        $refresh_token = get_user_meta($user_ID, "BC_RT", true);
+
+        $refresh_token = get_user_meta($this->user_ID, "BC_RT", true);
         $url = $this->auth_url . "/authorization/token?type=refresh&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&refresh_token=" . $refresh_token;
         $response = wp_remote_post($url);
         $response = json_decode($response['body']);
@@ -112,7 +121,7 @@ class BasecampAPI {
             $this->last_error = $response->error;
             return false;
         }
-        set_transient($user_ID . "_BC_AT", $response->access_token, $response->expires_in);  # Save the Access Token as a transient because access tokens expire after two weeks.
+        set_transient($this->user_ID . "_BC_AT", $response->access_token, $response->expires_in);  # Save the Access Token as a transient because access tokens expire after two weeks.
 
         return $response->access_token;
     }
@@ -122,12 +131,11 @@ class BasecampAPI {
      * Will retrieve token transient, if expired will run the refreshToken() method to retrieve new access token.
      */
     function getUserToken() {
-        $user_ID = get_current_user_id();
-        $token = get_transient($user_ID . "_BC_AT");
+        $token = get_transient($this->user_ID . "_BC_AT");
         if ($token === false) { # access token has expired.
             $token = $this->refreshToken();
         }
-        $this->token=$token;
+        $this->token = $token;
     }
 
 }
