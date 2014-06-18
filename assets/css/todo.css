@@ -33,3 +33,21 @@
     float:left;
 margin-right:20px;
 }
+
+#projectCreator{
+     border-bottom:1px dotted #222222;
+    
+}
+
+#projectCreator img{
+    float:right;
+    width:35px;
+    height:35px;
+}
+#projectCreator span{
+    display:block;
+    padding-top:10px;
+}
+#projectCreator br{
+    clear:both;
+}

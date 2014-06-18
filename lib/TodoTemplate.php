@@ -11,6 +11,7 @@ class TodoTemplate extends BasecampAPI {
         add_action("init", array($this, "createPostType"));
         add_action("admin_menu", array($this, "pageSetup"));
         add_action("admin_enqueue_scripts", array($this, "adminScripts"));
+        add_action('wp_ajax_project_details', array($this, 'projectAjax'));
     }
 
     function createPostType() {
@@ -54,16 +55,23 @@ class TodoTemplate extends BasecampAPI {
 
     function adminScripts() {
         wp_enqueue_style('bct-css', plugin_dir_url(__FILE__) . "../assets/css/todo.css");
+        wp_enqueue_script('bct-js', plugin_dir_url(__FILE__) . "../assets/js/todo.js", array('jquery'));
+        wp_localize_script('bct-js', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')));
     }
 
     function adminPage() {
 
         $token = $this->getUserToken();
         $accounts = $this->getAccounts();
-
+        $todos=get_posts(array("post_type"=>"bc_todo"));
         ob_start();
-        if (count($accounts == 1)) {
-            $projects = $this->getProjects($accounts[0]->id);
+        if (isset($_GET['acct'])) {
+            $account_id = esc_attr($_GET['acct']);
+            $projects = $this->getProjects($account_id);
+            include plugin_dir_path(__FILE__) . "../views/projects.php";
+        } elseif (count($accounts) == 1) {
+            $account_id = $accounts[0]->id;
+            $projects = $this->getProjects($account_id);
             include plugin_dir_path(__FILE__) . "../views/projects.php";
         } else {
             include plugin_dir_path(__FILE__) . "../views/accounts.php";
@@ -112,6 +120,23 @@ class TodoTemplate extends BasecampAPI {
             }
         }
         wp_die("Nothing to see here.");
+    }
+
+    function projectAjax() {
+        $account_id = esc_attr($_POST['account_id']);
+        $project_id = esc_attr($_POST['project_id']);
+        $project_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . ".json";
+        $todo_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . "/todolists.json";
+        //$project = $this->getTodoListByURL($url);
+
+        $project = get_transient($this->user_ID . "_" . $project_id);
+        if ($project === false) {
+            $project = $this->getProjectByURL($project_url);
+            $project->todos = $this->getTodoListByURL($todo_url);
+            set_transient($this->user_ID . "_" . $project_id, $project, 300);
+        }
+        echo json_encode($project);
+        die();
     }
 
 }

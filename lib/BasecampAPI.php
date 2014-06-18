@@ -104,6 +104,22 @@ class BasecampAPI {
         return $response;
     }
 
+    function getProjectByURL($url) {
+        $this->getUserToken();
+        $args = array();
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+        $response = wp_remote_get($url, $args);
+        return json_decode($response['body']);
+    }
+
+    function getTodoListByURL($url) {
+        $this->getUserToken();
+        $args = array();
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+        $response = wp_remote_get($url, $args);
+        return json_decode($response['body']);
+    }
+
     /**
      * Retrieves new access token from API based on the user's refresh token.
      * @return mixed Returns access token or false.
