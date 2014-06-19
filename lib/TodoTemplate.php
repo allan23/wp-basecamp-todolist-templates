@@ -11,7 +11,10 @@ class TodoTemplate extends BasecampAPI {
         add_action("init", array($this, "createPostType"));
         add_action("admin_menu", array($this, "pageSetup"));
         add_action("admin_enqueue_scripts", array($this, "adminScripts"));
-        add_action('wp_ajax_project_details', array($this, 'projectAjax'));
+        add_action("wp_ajax_project_details", array($this, "projectAjax"));
+        add_action("wp_ajax_todo_box", array($this, "addField"));
+        add_action("add_meta_boxes", array($this, "addBoxes"));
+        add_action("save_post", array($this, "saveTodo"));
     }
 
     function createPostType() {
@@ -20,6 +23,7 @@ class TodoTemplate extends BasecampAPI {
                 'name' => __('Todo Lists'),
                 'singular_name' => __('Todo List'),
                 'add_new_item' => __('Add New Todo List'),
+                'edit_item' => __('Edit Todo List'),
             ),
             'public' => false,
             'supports' => array('title'),
@@ -63,7 +67,7 @@ class TodoTemplate extends BasecampAPI {
 
         $token = $this->getUserToken();
         $accounts = $this->getAccounts();
-        $todos=get_posts(array("post_type"=>"bc_todo"));
+        $todos = get_posts(array("post_type" => "bc_todo"));
         ob_start();
         if (isset($_GET['acct'])) {
             $account_id = esc_attr($_GET['acct']);
@@ -137,6 +141,55 @@ class TodoTemplate extends BasecampAPI {
         }
         echo json_encode($project);
         die();
+    }
+
+    function addBoxes() {
+        add_meta_box("todo_list_items", "Todo List Items", array($this, "metaBox"), "bc_todo");
+    }
+
+    function metaBox($post) {
+        wp_nonce_field("todo_meta_box", "todo_meta_box_nonce");
+        $todo_items = get_post_meta($post->ID, "_todolist", true);
+        ob_start();
+        include plugin_dir_path(__FILE__) . "../views/metabox.php";
+        echo ob_get_clean();
+    }
+
+    function addField() {
+        ob_start();
+        include plugin_dir_path(__FILE__) . "../views/fields.php";
+        echo ob_get_clean();
+        die();
+    }
+
+    function saveTodo($post_id) {
+        if (!isset($_POST['todo_meta_box_nonce'])) {
+            return;
+        }
+        if (!wp_verify_nonce($_POST['todo_meta_box_nonce'], 'todo_meta_box')) {
+            return;
+        }
+
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        if (isset($_POST['post_type']) && 'bc_todo' == $_POST['post_type']) {
+
+            if (!current_user_can('edit_page', $post_id)) {
+                return;
+            }
+        } else {
+
+            if (!current_user_can('edit_post', $post_id)) {
+                return;
+            }
+        }
+        $todo_list = array();
+        foreach ($_POST['_todolist'] as $todo) {
+            $todo_list[] = sanitize_text_field($todo);
+        }
+        update_post_meta($post_id, "_todolist", $todo_list);
     }
 
 }
