@@ -19,8 +19,6 @@ jQuery(document).ready(function($) {
 
     $(".expandTodo").live("click", function(e) {
         e.preventDefault();
-        // $(this).parent().append("<ol><li>hi</li></ol>");
-
         var data = {
             action: "expand_todo",
             url: $(this).attr("data-url")
@@ -134,8 +132,4 @@ jQuery(document).ready(function($) {
         });
 
     }
-
-
-
-
 });

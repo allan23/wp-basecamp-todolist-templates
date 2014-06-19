@@ -4,9 +4,11 @@
  * TodoTemplate Class extends the BasecampAPI class.
  */
 class TodoTemplate extends BasecampAPI {
+    /*
+     * Fire it up and load our actions and filters.
+     */
 
     function __construct() {
-
         add_action("admin_init", array($this, "settings"));
         add_action("init", array($this, "createPostType"));
         add_action("admin_menu", array($this, "pageSetup"));
@@ -21,6 +23,9 @@ class TodoTemplate extends BasecampAPI {
         add_filter("user_can_richedit", array($this, "disableWysiwyg"));
     }
 
+    /**
+     * Creates the custom post type for todo list creation.
+     */
     function createPostType() {
         register_post_type('bc_todo', array(
             'labels' => array(
@@ -37,12 +42,21 @@ class TodoTemplate extends BasecampAPI {
         );
     }
 
+    /**
+     * Registers our two main options (Client ID and Client Secret).
+     */
     function settings() {
         $this->user_ID = get_current_user_id();
         register_setting("todosetup", "BC_ClientID");
         register_setting("todosetup", "BC_Secret");
     }
 
+    /**
+     * Prevents the WYSIWYG editor on our custom post type (bc_todo).
+     * @global $post[] $post The post object.
+     * @param $default[] $default The default object/array for the filter.
+     * @return mixed Returns false if our custom post type is being used, otherwise it sends over the $default.
+     */
     function disableWysiwyg($default) {
         global $post;
         if ("bc_todo" == get_post_type($post))
@@ -50,6 +64,9 @@ class TodoTemplate extends BasecampAPI {
         return $default;
     }
 
+    /**
+     * Sets up our admin menu pages.
+     */
     function pageSetup() {
         $client_id = get_option("BC_ClientID");
         if ($client_id) {
@@ -68,12 +85,18 @@ class TodoTemplate extends BasecampAPI {
         remove_menu_page("todolist_auth");
     }
 
+    /**
+     * Enqueues our script and stylesheet.
+     */
     function adminScripts() {
         wp_enqueue_style('bct-css', plugin_dir_url(__FILE__) . "../assets/css/todo.css");
         wp_enqueue_script('bct-js', plugin_dir_url(__FILE__) . "../assets/js/todo.js", array('jquery'));
         wp_localize_script('bct-js', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')));
     }
 
+    /**
+     * The "Assign Project" page.  This will either show a list of accounts if there is more than one account or the todo assignment view.
+     */
     function adminPage() {
 
         $token = $this->getUserToken();
@@ -92,24 +115,11 @@ class TodoTemplate extends BasecampAPI {
             include plugin_dir_path(__FILE__) . "../views/accounts.php";
         }
         echo ob_get_clean();
-        /*
-          if ($response) {
-          echo "<pre>";
-          print_r($response);
-          echo "</pre>";
-          $url = $response[0]->href;
-
-          $response = $this->getProjects($url);
-          echo "<pre>";
-          print_r($response);
-          echo "</pre>";
-          } else {
-          echo $this->last_error;
-          }
-         * 
-         */
     }
 
+    /**
+     * This is the "App Setup" page.  Will allow storing of Client ID and Client Secret.
+     */
     function setupPage() {
         $client_id = get_option("BC_ClientID");
         $client_secret = get_option("BC_Secret");
@@ -118,6 +128,9 @@ class TodoTemplate extends BasecampAPI {
         echo ob_get_clean();
     }
 
+    /**
+     * This is the user authorization page.  It will prompt the user to authorize the app with 37Signals.
+     */
     function authorizePage() {
 
         $auth_url = $this->authenticate();
@@ -126,6 +139,10 @@ class TodoTemplate extends BasecampAPI {
         echo ob_get_clean();
     }
 
+    /**
+     * This function will get the access token and refresh token based upon the returned code string from the API.
+     * 
+     */
     function auth() {
         if (isset($_GET['code'])) {
             $code = esc_attr($_GET['code']);
@@ -137,13 +154,16 @@ class TodoTemplate extends BasecampAPI {
         wp_die("Nothing to see here.");
     }
 
+    /**
+     * AJAX callback that will retrive project details.
+     */
     function projectAjax() {
         $account_id = esc_attr($_POST['account_id']);
         $project_id = esc_attr($_POST['project_id']);
         $project_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . ".json";
         $todo_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . "/todolists.json";
-        
-        if (isset($_POST['hardRefresh'])){
+
+        if (isset($_POST['hardRefresh'])) {
             delete_transient($this->user_ID . "_" . $project_id);
         }
 
@@ -157,10 +177,17 @@ class TodoTemplate extends BasecampAPI {
         die();
     }
 
+    /**
+     * Sets up meta boxes on our custom post type.
+     */
     function addBoxes() {
         add_meta_box("todo_list_items", "Todo List Items", array($this, "metaBox"), "bc_todo");
     }
 
+    /**
+     * This will get our postmeta and display the metabox.php view.
+     * @param $post[] $post The post object.
+     */
     function metaBox($post) {
         wp_nonce_field("todo_meta_box", "todo_meta_box_nonce");
         $todo_items = get_post_meta($post->ID, "_todolist", true);
@@ -169,14 +196,21 @@ class TodoTemplate extends BasecampAPI {
         echo ob_get_clean();
     }
 
+    /**
+     * AJAX callback to generate a new todo item field in the meta box.
+     */
     function addField() {
         ob_start();
-        $todo="";
+        $todo = "";
         include plugin_dir_path(__FILE__) . "../views/fields.php";
         echo ob_get_clean();
         die();
     }
 
+    /**
+     * This will update the postmeta for the todo list items if the post is our custom post type.
+     * @param int $post_id The saved post's ID.
+     */
     function saveTodo($post_id) {
         if (!isset($_POST['todo_meta_box_nonce'])) {
             return;
@@ -207,37 +241,45 @@ class TodoTemplate extends BasecampAPI {
         update_post_meta($post_id, "_todolist", $todo_list);
     }
 
+    /**
+     * AJAX callback to retrieve the post object and the postmeta based on post_id.
+     */
     function getPost() {
         $post_id = (int) esc_attr($_POST['post_id']);
         $post = get_post($post_id);
-        $post->post_content=strip_tags($post->post_content);
+        $post->post_content = strip_tags($post->post_content);
         $post->todolist = get_post_meta($post->ID, "_todolist", true);
         echo json_encode($post);
 
         die();
     }
 
-    function assignTodoToProject(){
-        $todo=new stdClass();
+    /**
+     * This will assign the chosen todo list to the chosen project.
+     */
+    function assignTodoToProject() {
+        $todo = new stdClass();
         $todo->account_id = esc_attr($_POST['account_id']);
         $todo->project_id = esc_attr($_POST['project_id']);
-        $todo->name=esc_attr($_POST['todo_name']);
-        $todo->description=esc_attr($_POST['todo_description']);
-        $post_id=(int) esc_attr($_POST['post_id']);
+        $todo->name = esc_attr($_POST['todo_name']);
+        $todo->description = esc_attr($_POST['todo_description']);
+        $post_id = (int) esc_attr($_POST['post_id']);
+
         # Get the Tasks
-        $todo->todos=get_post_meta($post_id, "_todolist", true);
-        
-        $results=$this->createTodo($todo);
+        $todo->todos = get_post_meta($post_id, "_todolist", true);
+
+        $results = $this->createTodo($todo);
         delete_transient($this->user_ID . "_" . $todo->project_id);
-        echo "<pre>";
-        print_r($results);
-        echo "</pre>";
         die();
     }
-    
-    function expandTodo(){
-        $url=esc_attr($_POST['url']);
+
+    /**
+     * This will retrieve the todo items for the todo list you wish to expand.
+     */
+    function expandTodo() {
+        $url = esc_attr($_POST['url']);
         echo $this->getTodoItemsByURL($url);
         die();
     }
+
 }

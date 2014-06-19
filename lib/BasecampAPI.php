@@ -104,6 +104,11 @@ class BasecampAPI {
         return $response;
     }
 
+    /**
+     * Retrieves project details based on API URL.
+     * @param string $url API URL.
+     * @return object The decoded JSON object.
+     */
     function getProjectByURL($url) {
         $this->getUserToken();
         $args = array();
@@ -112,6 +117,11 @@ class BasecampAPI {
         return json_decode($response['body']);
     }
 
+    /**
+     * Retrieves todo list names based on API URL.
+     * @param string $url API URL.
+     * @return object The decoded JSON object.
+     */
     function getTodoListByURL($url) {
         $this->getUserToken();
         $args = array();
@@ -120,6 +130,11 @@ class BasecampAPI {
         return json_decode($response['body']);
     }
 
+    /**
+     * Retrieves todo list and items in that list.
+     * @param string $url API URL.
+     * @return string The JSON encoded object.
+     */
     function getTodoItemsByURL($url) {
         $this->getUserToken();
         $args = array();
@@ -163,6 +178,11 @@ class BasecampAPI {
         $this->token = $token;
     }
 
+    /**
+     * Sends a request to create a todo list and then adds each individual list item.
+     * @param $todo[] $todo Object containing account, project, and todo list items.
+     * @return object wp_remote_post returned object.
+     */
     function createTodo($todo) {
         $this->getUserToken();
 
@@ -187,10 +207,6 @@ class BasecampAPI {
             $args['body'] = json_encode(array("content" => $t));
             $response = wp_remote_post($url, $args);
         endforeach;
-
-
-
-
 
         return $response;
     }
