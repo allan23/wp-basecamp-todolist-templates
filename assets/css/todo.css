@@ -73,3 +73,6 @@ a.remove_todo{
     clear:right;
     padding-top:5px;
 }
+#todoSelected textarea{
+    width:100%;
+}

@@ -13,8 +13,11 @@ class TodoTemplate extends BasecampAPI {
         add_action("admin_enqueue_scripts", array($this, "adminScripts"));
         add_action("wp_ajax_project_details", array($this, "projectAjax"));
         add_action("wp_ajax_todo_box", array($this, "addField"));
+        add_action("wp_ajax_post_list", array($this, "getPost"));
+        add_action("wp_ajax_assign_todo", array($this, "assignTodoToProject"));
         add_action("add_meta_boxes", array($this, "addBoxes"));
         add_action("save_post", array($this, "saveTodo"));
+        add_filter("user_can_richedit", array($this, "disableWysiwyg"));
     }
 
     function createPostType() {
@@ -26,7 +29,7 @@ class TodoTemplate extends BasecampAPI {
                 'edit_item' => __('Edit Todo List'),
             ),
             'public' => false,
-            'supports' => array('title'),
+            'supports' => array('title', 'editor'),
             'show_ui' => true,
             'menu_icon' => plugin_dir_url(__FILE__) . "../assets/images/basecampicon_sm.png"
                 )
@@ -37,6 +40,13 @@ class TodoTemplate extends BasecampAPI {
         $this->user_ID = get_current_user_id();
         register_setting("todosetup", "BC_ClientID");
         register_setting("todosetup", "BC_Secret");
+    }
+
+    function disableWysiwyg($default) {
+        global $post;
+        if ("bc_todo" == get_post_type($post))
+            return false;
+        return $default;
     }
 
     function pageSetup() {
@@ -192,4 +202,31 @@ class TodoTemplate extends BasecampAPI {
         update_post_meta($post_id, "_todolist", $todo_list);
     }
 
+    function getPost() {
+        $post_id = (int) esc_attr($_POST['post_id']);
+        $post = get_post($post_id);
+        $post->post_content=strip_tags($post->post_content);
+        $post->todolist = get_post_meta($post->ID, "_todolist", true);
+        echo json_encode($post);
+
+        die();
+    }
+
+    function assignTodoToProject(){
+        $todo=new stdClass();
+        $todo->account_id = esc_attr($_POST['account_id']);
+        $todo->project_id = esc_attr($_POST['project_id']);
+        $todo->name=esc_attr($_POST['todo_name']);
+        $todo->description=esc_attr($_POST['todo_description']);
+        $post_id=(int) esc_attr($_POST['post_id']);
+        # Get the Tasks
+        $todo->todos=get_post_meta($post_id, "_todolist", true);
+        
+        $results=$this->createTodo($todo);
+        delete_transient($this->user_ID . "_" . $todo->project_id);
+        echo "<pre>";
+        print_r($results);
+        echo "</pre>";
+        die();
+    }
 }

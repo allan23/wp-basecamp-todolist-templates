@@ -154,4 +154,36 @@ class BasecampAPI {
         $this->token = $token;
     }
 
+    function createTodo($todo) {
+        $this->getUserToken();
+
+        # Create the Todo List first...
+        $args = array();
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+        $args['headers']['Content-Type'] = "application/json";
+        $args['body'] = json_encode($todo);
+        $url = "https://basecamp.com/" . $todo->account_id . "/api/v1/projects/" . $todo->project_id . "/todolists.json";
+        $response = wp_remote_post($url, $args);
+        $body = json_decode($response['body']);
+        $todoID = $body->id;
+
+        # Add todos to the newly created list:
+
+
+        $url = "https://basecamp.com/" . $todo->account_id . "/api/v1/projects/" . $todo->project_id . "/todolists/" . $todoID . "/todos.json";
+        foreach ($todo->todos as $t):
+            $args = array();
+            $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+            $args['headers']['Content-Type'] = "application/json";
+            $args['body'] = json_encode(array("content" => $t));
+            $response = wp_remote_post($url, $args);
+        endforeach;
+
+
+
+
+
+        return $response;
+    }
+
 }
