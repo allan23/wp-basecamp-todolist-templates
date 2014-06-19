@@ -15,6 +15,7 @@ class TodoTemplate extends BasecampAPI {
         add_action("wp_ajax_todo_box", array($this, "addField"));
         add_action("wp_ajax_post_list", array($this, "getPost"));
         add_action("wp_ajax_assign_todo", array($this, "assignTodoToProject"));
+        add_action("wp_ajax_expand_todo", array($this, "expandTodo"));
         add_action("add_meta_boxes", array($this, "addBoxes"));
         add_action("save_post", array($this, "saveTodo"));
         add_filter("user_can_richedit", array($this, "disableWysiwyg"));
@@ -141,7 +142,10 @@ class TodoTemplate extends BasecampAPI {
         $project_id = esc_attr($_POST['project_id']);
         $project_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . ".json";
         $todo_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . "/todolists.json";
-        //$project = $this->getTodoListByURL($url);
+        
+        if (isset($_POST['hardRefresh'])){
+            delete_transient($this->user_ID . "_" . $project_id);
+        }
 
         $project = get_transient($this->user_ID . "_" . $project_id);
         if ($project === false) {
@@ -167,6 +171,7 @@ class TodoTemplate extends BasecampAPI {
 
     function addField() {
         ob_start();
+        $todo="";
         include plugin_dir_path(__FILE__) . "../views/fields.php";
         echo ob_get_clean();
         die();
@@ -227,6 +232,12 @@ class TodoTemplate extends BasecampAPI {
         echo "<pre>";
         print_r($results);
         echo "</pre>";
+        die();
+    }
+    
+    function expandTodo(){
+        $url=esc_attr($_POST['url']);
+        echo $this->getTodoItemsByURL($url);
         die();
     }
 }

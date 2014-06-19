@@ -64,7 +64,7 @@ class BasecampAPI {
             $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
             $response = wp_remote_get($this->auth_url . "/authorization.json", $args);
             $response = json_decode($response['body']);
-            set_transient($this->user_ID . "_BC_Acc", $response, 300);
+            set_transient($this->user_ID . "_BC_Acc", $response, 1200);
         }
         if (isset($response->error)) {
             $this->last_error = $response->error;
@@ -95,7 +95,7 @@ class BasecampAPI {
             $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
             $response = wp_remote_get($url . "/projects.json", $args);
             $response = json_decode($response['body']);
-            set_transient($this->user_ID . "_BC_Pro", $response, 300);
+            set_transient($this->user_ID . "_BC_Pro", $response, 600);
         }
         if (isset($response->error)) {
             $this->last_error = $response->error;
@@ -118,6 +118,15 @@ class BasecampAPI {
         $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
         $response = wp_remote_get($url, $args);
         return json_decode($response['body']);
+    }
+
+    function getTodoItemsByURL($url) {
+        $this->getUserToken();
+        $args = array();
+        $args['headers']['Authorization'] = 'Bearer "' . $this->token . '"';
+        $response = wp_remote_get($url, $args);
+        //return $response;
+        return $response['body'];
     }
 
     /**

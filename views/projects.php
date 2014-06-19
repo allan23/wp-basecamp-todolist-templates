@@ -62,16 +62,33 @@
                 <ul id="projectTodo">
 
                 </ul>
+                <br><br>
+                <div class="bct_center">
+                <a href="#" id="refreshProject" class="button-secondary">Refresh This Project</a>
+                </div>
             </div>
-
+            
         </div>
+          <div class="bct_box" style="float:left;display:none;" id="ajaxLoading">
+            <div class="bct_content" >
+                <h2><img src="<?php echo plugin_dir_url(__FILE__) . "../assets/images/ajax-loader.gif"; ?>" id="bc_logo" alt="Loading"> Loading...</h2>
+
+
+               
+                <div class="bct_center loadercontent">
+                One moment please.
+                </div>
+            </div>
+            
+        </div>
+        <br style="clear:both;">
     </div>
 
 
 </div>
 
+<br style="clear:both;">
 
-</div>
 <script>
     var bc_account = '<?php echo $account_id; ?>';
 </script>

@@ -31,14 +31,18 @@
 
 #bc_logo{
     float:left;
-margin-right:20px;
+    margin-right:20px;
 }
 
-#projectCreator{
-     border-bottom:1px dotted #222222;
-    
+#projectCreator,#projectTodo > li{
+    border-bottom:1px dotted #222222;
+
 }
 
+#projectTodo li{
+    padding-top:5px;
+    padding-bottom:5px;
+}
 #projectCreator img{
     float:right;
     width:35px;
@@ -75,4 +79,9 @@ a.remove_todo{
 }
 #todoSelected textarea{
     width:100%;
+}
+.loadercontent{
+    clear:both; 
+    padding-top:25px;
+    padding-bottom:25px;
 }

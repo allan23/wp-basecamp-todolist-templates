@@ -14,24 +14,29 @@ jQuery(document).ready(function($) {
         $("#projectName,#projectDesc,#projectCreator,#projectTodo").html('');
 
         $("#todoInfo").show();
-        var data = {
-            action: "project_details",
-            project_id: $(this).val(),
-            account_id: bc_account
-        }
-        $.post(ajax_object.ajax_url, data, function(response) {
-            response = $.parseJSON(response);
-            $("#projectName").html(response.name);
-            $("#projectDesc").html(response.description);
-            $("#projectCreator").html("<br><img src='" + response.creator.avatar_url + "'> <span>Created By " + response.creator.name + "</span><br>");
-            $.each(response.todos, function(index, todo) {
-                $("#projectTodo").append("<li>" + todo.name + "</li>");
-            });
-            $("#projectDetails").fadeIn();
-
-        });
+        loadProject();
     });
 
+    $(".expandTodo").live("click", function(e) {
+        e.preventDefault();
+        // $(this).parent().append("<ol><li>hi</li></ol>");
+
+        var data = {
+            action: "expand_todo",
+            url: $(this).attr("data-url")
+        }
+        var mylist = $(this).parent().children("ol");
+        mylist.html('');
+        var mydesc = $(this).parent().children(".tdesc");
+        mydesc.html('');
+        $.post(ajax_object.ajax_url, data, function(response) {
+            response = $.parseJSON(response);
+            mydesc.html(response.description);
+            $.each(response.todos.remaining, function(index, todo) {
+                mylist.append("<li>" + todo.content + "</li>");
+            });
+        });
+    });
 
     $("#postList").change(function() {
         $("#theTodoList").html('');
@@ -58,6 +63,8 @@ jQuery(document).ready(function($) {
 
     $("#performAssign").click(function(e) {
         e.preventDefault();
+        $("#projectDetails").hide();
+        $("#ajaxLoading").show();
         var data = {
             action: "assign_todo",
             project_id: $("#projectList").val(),
@@ -67,8 +74,8 @@ jQuery(document).ready(function($) {
             post_id: $("#postList").val()
         }
         $.post(ajax_object.ajax_url, data, function(response) {
-            $("#todoResults").html(response);
-
+            //$("#todoResults").html(response);
+            loadProject();
         });
     });
 
@@ -91,6 +98,43 @@ jQuery(document).ready(function($) {
             $(this).parent().remove();
         }
     });
+
+    $("#refreshProject").click(function(e) {
+        e.preventDefault();
+        loadProject(true);
+    });
+    function loadProject(hardRefresh) {
+
+        $("#projectDetails").hide();
+        $("#ajaxLoading").show();
+        $("#projectTodo").html('');
+        var data = {
+            action: "project_details",
+            project_id: $("#projectList").val(),
+            account_id: bc_account
+        }
+        if (hardRefresh === true) {
+            data.hardRefresh = true;
+        }
+        $.post(ajax_object.ajax_url, data, function(response) {
+            response = $.parseJSON(response);
+            $("#projectName").html(response.name);
+            $("#projectDesc").html(response.description);
+            $("#projectCreator").html("<br><img src='" + response.creator.avatar_url + "'> <span>Created By " + response.creator.name + "</span><br>");
+            if (response.todos.length === 0) {
+                $("#projectTodo").append("<li><em>There are no todo lists for this project.</em></li>");
+            } else {
+                $.each(response.todos, function(index, todo) {
+                    $("#projectTodo").append("<li><strong>" + todo.name + "</strong> <a href='#' class='expandTodo' data-url='" + todo.url + "'>[Expand]</a><br><em class='tdesc'></em><ol></ol></li>");
+                });
+            }
+            $("#ajaxLoading").hide();
+            $("#projectDetails").fadeIn();
+
+        });
+
+    }
+
 
 
 
