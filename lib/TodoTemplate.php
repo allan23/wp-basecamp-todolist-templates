@@ -101,7 +101,11 @@ class TodoTemplate extends BasecampAPI {
 
         $token = $this->getUserToken();
         $accounts = $this->getAccounts();
-        $todos = get_posts(array("post_type" => "bc_todo"));
+        $todos = get_transient("bct_todos");
+        if ($todos === false) {
+            $todos = get_posts(array("post_type" => "bc_todo"));
+            set_transient("bct_todos", $todos, 600);
+        }
         ob_start();
         if (isset($_GET['acct'])) {
             $account_id = esc_attr($_GET['acct']);
@@ -246,12 +250,26 @@ class TodoTemplate extends BasecampAPI {
      */
     function getPost() {
         $post_id = (int) esc_attr($_POST['post_id']);
-        $post = get_post($post_id);
-        $post->post_content = strip_tags($post->post_content);
-        $post->todolist = get_post_meta($post->ID, "_todolist", true);
+        $post = $this->getThePost($post_id);
         echo json_encode($post);
 
         die();
+    }
+
+    /**
+     * Retrieves the post object and post meta based on post_id.
+     * @param int $post_id Post ID
+     * @return $post[] The $post object and the post meta.
+     */
+    function getThePost($post_id) {
+        $post = get_transient("bctpost_" . $post_id);
+        if ($post === false) {
+            $post = get_post($post_id);
+            $post->post_content = strip_tags($post->post_content);
+            $post->todolist = get_post_meta($post->ID, "_todolist", true);
+            set_transient("bctpost_" . $post_id, $post, 600);
+        }
+        return $post;
     }
 
     /**
