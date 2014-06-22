@@ -243,6 +243,10 @@ class TodoTemplate extends BasecampAPI {
             $todo_list[] = sanitize_text_field($todo);
         }
         update_post_meta($post_id, "_todolist", $todo_list);
+        
+        # Delete transients on save:
+        delete_transient("bct_todos");
+        delete_transient("bctpost_" . $post_id);
     }
 
     /**
