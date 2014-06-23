@@ -37,7 +37,7 @@ class Basecamp_API {
 		$redirect_url	 = menu_page_url( "todolist_auth", false );
 		$url			 = $this->auth_url . "/authorization/token?type=web_server&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&code=" . $code;
 		$response		 = wp_remote_post( $url );
-		$response		 = json_decode( $response[ 'body' ] );
+		$response		 = json_decode( $response['body'] );
 
 		if ( isset( $response->error ) ) {
 			$this->last_error = $response->error;
@@ -60,10 +60,10 @@ class Basecamp_API {
 	function get_accounts() {
 		$response = get_transient( $this->user_ID . "_BC_Acc" );
 		if ( $response === false ) {
-			$args									 = array();
-			$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-			$response								 = wp_remote_get( $this->auth_url . "/authorization.json", $args );
-			$response								 = json_decode( $response[ 'body' ] );
+			$args								 = array();
+			$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+			$response							 = wp_remote_get( $this->auth_url . "/authorization.json", $args );
+			$response							 = json_decode( $response['body'] );
 			set_transient( $this->user_ID . "_BC_Acc", $response, 1200 );
 		}
 		if ( isset( $response->error ) ) {
@@ -90,11 +90,11 @@ class Basecamp_API {
 
 		$response = get_transient( $this->user_ID . "_BC_Pro" );
 		if ( $response === false ) {
-			$url									 = "https://basecamp.com/" . $account_id . "/api/v1";
-			$args									 = array();
-			$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-			$response								 = wp_remote_get( $url . "/projects.json", $args );
-			$response								 = json_decode( $response[ 'body' ] );
+			$url								 = "https://basecamp.com/" . $account_id . "/api/v1";
+			$args								 = array();
+			$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+			$response							 = wp_remote_get( $url . "/projects.json", $args );
+			$response							 = json_decode( $response['body'] );
 			set_transient( $this->user_ID . "_BC_Pro", $response, 600 );
 		}
 		if ( isset( $response->error ) ) {
@@ -111,10 +111,10 @@ class Basecamp_API {
 	 */
 	function get_project_by_url( $url ) {
 		$this->get_user_token();
-		$args									 = array();
-		$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-		$response								 = wp_remote_get( $url, $args );
-		return json_decode( $response[ 'body' ] );
+		$args								 = array();
+		$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+		$response							 = wp_remote_get( $url, $args );
+		return json_decode( $response['body'] );
 	}
 
 	/**
@@ -124,10 +124,10 @@ class Basecamp_API {
 	 */
 	function get_todo_list_by_url( $url ) {
 		$this->get_user_token();
-		$args									 = array();
-		$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-		$response								 = wp_remote_get( $url, $args );
-		return json_decode( $response[ 'body' ] );
+		$args								 = array();
+		$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+		$response							 = wp_remote_get( $url, $args );
+		return json_decode( $response['body'] );
 	}
 
 	/**
@@ -137,11 +137,11 @@ class Basecamp_API {
 	 */
 	function get_todo_items_by_url( $url ) {
 		$this->get_user_token();
-		$args									 = array();
-		$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-		$response								 = wp_remote_get( $url, $args );
+		$args								 = array();
+		$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+		$response							 = wp_remote_get( $url, $args );
 		//return $response;
-		return $response[ 'body' ];
+		return $response['body'];
 	}
 
 	/**
@@ -156,7 +156,7 @@ class Basecamp_API {
 		$refresh_token	 = get_user_meta( $this->user_ID, "BC_RT", true );
 		$url			 = $this->auth_url . "/authorization/token?type=refresh&client_id=" . $client_id . "&redirect_uri=" . $redirect_url . "&client_secret=" . $client_secret . "&refresh_token=" . $refresh_token;
 		$response		 = wp_remote_post( $url );
-		$response		 = json_decode( $response[ 'body' ] );
+		$response		 = json_decode( $response['body'] );
 		if ( isset( $response->error ) ) {
 			$this->last_error = $response->error;
 			return false;
@@ -187,25 +187,25 @@ class Basecamp_API {
 		$this->get_user_token();
 
 		# Create the Todo List first...
-		$args									 = array();
-		$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-		$args[ 'headers' ][ 'Content-Type' ]	 = "application/json";
-		$args[ 'body' ]							 = json_encode( $todo );
-		$url									 = "https://basecamp.com/" . $todo->account_id . "/api/v1/projects/" . $todo->project_id . "/todolists.json";
-		$response								 = wp_remote_post( $url, $args );
-		$body									 = json_decode( $response[ 'body' ] );
-		$todoID									 = $body->id;
+		$args								 = array();
+		$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+		$args['headers']['Content-Type']	 = "application/json";
+		$args['body']						 = json_encode( $todo );
+		$url								 = "https://basecamp.com/" . $todo->account_id . "/api/v1/projects/" . $todo->project_id . "/todolists.json";
+		$response							 = wp_remote_post( $url, $args );
+		$body								 = json_decode( $response['body'] );
+		$todoID								 = $body->id;
 
 		# Add todos to the newly created list:
 
 
 		$url = "https://basecamp.com/" . $todo->account_id . "/api/v1/projects/" . $todo->project_id . "/todolists/" . $todoID . "/todos.json";
 		foreach ( $todo->todos as $t ):
-			$args									 = array();
-			$args[ 'headers' ][ 'Authorization' ]	 = 'Bearer "' . $this->token . '"';
-			$args[ 'headers' ][ 'Content-Type' ]	 = "application/json";
-			$args[ 'body' ]							 = json_encode( array( "content" => $t ) );
-			$response								 = wp_remote_post( $url, $args );
+			$args								 = array();
+			$args['headers']['Authorization']	 = 'Bearer "' . $this->token . '"';
+			$args['headers']['Content-Type']	 = "application/json";
+			$args['body']						 = json_encode( array( "content" => $t ) );
+			$response							 = wp_remote_post( $url, $args );
 		endforeach;
 
 		return $response;

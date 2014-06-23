@@ -107,12 +107,12 @@ class Todo_Template extends Basecamp_API {
 			set_transient( "bct_todos", $todos, 600 );
 		}
 		ob_start();
-		if ( isset( $_GET[ 'acct' ] ) ) {
-			$account_id	 = esc_attr( $_GET[ 'acct' ] );
+		if ( isset( $_GET['acct'] ) ) {
+			$account_id	 = esc_attr( $_GET['acct'] );
 			$projects	 = $this->get_projects( $account_id );
 			include plugin_dir_path( __FILE__ ) . "../views/projects.php";
 		} elseif ( count( $accounts ) == 1 ) {
-			$account_id	 = $accounts[ 0 ]->id;
+			$account_id	 = $accounts[0]->id;
 			$projects	 = $this->get_projects( $account_id );
 			include plugin_dir_path( __FILE__ ) . "../views/projects.php";
 		} else {
@@ -148,8 +148,8 @@ class Todo_Template extends Basecamp_API {
 	 * 
 	 */
 	function auth() {
-		if ( isset( $_GET[ 'code' ] ) ) {
-			$code = esc_attr( $_GET[ 'code' ] );
+		if ( isset( $_GET['code'] ) ) {
+			$code = esc_attr( $_GET['code'] );
 			if ( $this->get_token( $code ) ) {
 				$this->admin_page();
 				return;
@@ -163,12 +163,12 @@ class Todo_Template extends Basecamp_API {
 	 */
 	function project_ajax() {
 		check_ajax_referer( 'bct_security', 'security' );
-		$account_id	 = esc_attr( $_POST[ 'account_id' ] );
-		$project_id	 = esc_attr( $_POST[ 'project_id' ] );
+		$account_id	 = esc_attr( $_POST['account_id'] );
+		$project_id	 = esc_attr( $_POST['project_id'] );
 		$project_url = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . ".json";
 		$todo_url	 = "https://basecamp.com/" . $account_id . "/api/v1/projects/" . $project_id . "/todolists.json";
 
-		if ( isset( $_POST[ 'hardRefresh' ] ) ) {
+		if ( isset( $_POST['hardRefresh'] ) ) {
 			delete_transient( $this->user_ID . "_" . $project_id );
 		}
 
@@ -218,10 +218,10 @@ class Todo_Template extends Basecamp_API {
 	 * @param int $post_id The saved post's ID.
 	 */
 	function save_todo( $post_id ) {
-		if ( !isset( $_POST[ 'todo_meta_box_nonce' ] ) ) {
+		if ( !isset( $_POST['todo_meta_box_nonce'] ) ) {
 			return;
 		}
-		if ( !wp_verify_nonce( $_POST[ 'todo_meta_box_nonce' ], 'todo_meta_box' ) ) {
+		if ( !wp_verify_nonce( $_POST['todo_meta_box_nonce'], 'todo_meta_box' ) ) {
 			return;
 		}
 
@@ -229,7 +229,7 @@ class Todo_Template extends Basecamp_API {
 			return;
 		}
 
-		if ( isset( $_POST[ 'post_type' ] ) && 'bc_todo' == $_POST[ 'post_type' ] ) {
+		if ( isset( $_POST['post_type'] ) && 'bc_todo' == $_POST['post_type'] ) {
 
 			if ( !current_user_can( 'edit_page', $post_id ) ) {
 				return;
@@ -241,7 +241,7 @@ class Todo_Template extends Basecamp_API {
 			}
 		}
 		$todo_list = array();
-		foreach ( $_POST[ '_todolist' ] as $todo ) {
+		foreach ( $_POST['_todolist'] as $todo ) {
 			$todo_list[] = sanitize_text_field( $todo );
 		}
 		update_post_meta( $post_id, "_todolist", $todo_list );
@@ -256,7 +256,7 @@ class Todo_Template extends Basecamp_API {
 	 */
 	function get_post() {
 		check_ajax_referer( 'bct_security', 'security' );
-		$post_id = (int) esc_attr( $_POST[ 'post_id' ] );
+		$post_id = (int) esc_attr( $_POST['post_id'] );
 		$post	 = $this->get_the_post( $post_id );
 		echo json_encode( $post );
 
@@ -285,11 +285,11 @@ class Todo_Template extends Basecamp_API {
 	function assign_todo_to_project() {
 		check_ajax_referer( 'bct_security', 'security' );
 		$todo				 = new stdClass();
-		$todo->account_id	 = esc_attr( $_POST[ 'account_id' ] );
-		$todo->project_id	 = esc_attr( $_POST[ 'project_id' ] );
-		$todo->name			 = esc_attr( $_POST[ 'todo_name' ] );
-		$todo->description	 = esc_attr( $_POST[ 'todo_description' ] );
-		$post_id			 = (int) esc_attr( $_POST[ 'post_id' ] );
+		$todo->account_id	 = esc_attr( $_POST['account_id'] );
+		$todo->project_id	 = esc_attr( $_POST['project_id'] );
+		$todo->name			 = esc_attr( $_POST['todo_name'] );
+		$todo->description	 = esc_attr( $_POST['todo_description'] );
+		$post_id			 = (int) esc_attr( $_POST['post_id'] );
 
 		# Get the Tasks
 		$todo->todos = get_post_meta( $post_id, "_todolist", true );
@@ -304,7 +304,7 @@ class Todo_Template extends Basecamp_API {
 	 */
 	function expand_todo() {
 		check_ajax_referer( 'bct_security', 'security' );
-		$url = esc_attr( $_POST[ 'url' ] );
+		$url = esc_attr( $_POST['url'] );
 		echo $this->get_todo_items_by_url( $url );
 		die();
 	}

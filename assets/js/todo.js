@@ -22,7 +22,7 @@ jQuery( document ).ready( function( $ ) {
         var data = {
             action: "expand_todo",
             url: $( this ).attr( "data-url" ),
-            security:ajax_object.security
+            security: ajax_object.security
         }
         var mylist = $( this ).parent().children( "ol" );
         mylist.html( '' );
@@ -47,7 +47,7 @@ jQuery( document ).ready( function( $ ) {
         var data = {
             action: "post_list",
             post_id: $( this ).val(),
-            security:ajax_object.security
+            security: ajax_object.security
         }
         $.post( ajax_object.ajax_url, data, function( response ) {
             response = $.parseJSON( response );
@@ -72,7 +72,7 @@ jQuery( document ).ready( function( $ ) {
             todo_name: $( "#todoName" ).val(),
             todo_description: $( "#todoDesc" ).val(),
             post_id: $( "#postList" ).val(),
-            security:ajax_object.security
+            security: ajax_object.security
         }
         $.post( ajax_object.ajax_url, data, function( response ) {
             //$("#todoResults").html(response);
@@ -84,7 +84,7 @@ jQuery( document ).ready( function( $ ) {
         e.preventDefault();
         var data = {
             action: "todo_box",
-            security:ajax_object.security
+            security: ajax_object.security
         }
         $.post( ajax_object.ajax_url, data, function( response ) {
             $( "#todo_list" ).append( response );
@@ -114,7 +114,7 @@ jQuery( document ).ready( function( $ ) {
             action: "project_details",
             project_id: $( "#projectList" ).val(),
             account_id: bc_account,
-            security:ajax_object.security
+            security: ajax_object.security
         }
         if ( hardRefresh === true ) {
             data.hardRefresh = true;

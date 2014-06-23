@@ -4,7 +4,7 @@
         <div class="bct_box">
             <div class="bct_content bct_center">
                 <h2 class="bct_left"><img src="<?php echo plugin_dir_url( __FILE__ ) . "../assets/images/basecampicon_lg.png"; ?>" id="bc_logo" alt="Basecamp"> Basecamp Todo Template Setup</h2>
-				<?php if ( isset( $_GET[ 'settings-updated' ] ) ) { ?>
+				<?php if ( isset( $_GET['settings-updated'] ) ) { ?>
 					<div id="message" class="updated">
 						<p><strong><?php _e( 'Settings saved.' ) ?></strong></p>
 					</div>
