@@ -25,8 +25,8 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-if (is_admin()) {
-    include "lib/BasecampAPI.php";
-    include "lib/TodoTemplate.php";
-    $BC = new TodoTemplate();
+if ( is_admin() ) {
+	include "lib/class-basecamp-api.php";
+	include "lib/class-todo-template.php";
+	$BC = new Todo_Template();
 }

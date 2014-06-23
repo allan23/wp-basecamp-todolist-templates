@@ -1,2 +1,2 @@
 <li><span class="dashicons dashicons-sort handleicon"></span>
-    <input type="text" class="todo_list_field" name="_todolist[]" value="<?php echo esc_attr($todo);?>"> <a href="#" class="remove_todo"><span class="dashicons dashicons-trash"> </span></a></li>
+    <input type="text" class="todo_list_field" name="_todolist[]" value="<?php echo esc_attr( $todo ); ?>"> <a href="#" class="remove_todo"><span class="dashicons dashicons-trash"> </span></a></li>
