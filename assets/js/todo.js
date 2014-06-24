@@ -1,7 +1,7 @@
 jQuery( document ).ready( function( $ ) {
     $( "#projectList" ).val( '' );
     $( "#postList" ).val( '' );
-   
+
 
 
     $( "#projectList" ).change( function() {
@@ -121,14 +121,14 @@ jQuery( document ).ready( function( $ ) {
         }
         $.post( ajax_object.ajax_url, data, function( response ) {
             response = $.parseJSON( response );
-            $( "#projectName" ).html("<a href='https://basecamp.com/" + bc_account + "/projects/" + response.id + "' target='_blank'>" + response.name + "</a>");
+            $( "#projectName" ).html( "<a href='https://basecamp.com/" + bc_account + "/projects/" + response.id + "' target='_blank'>" + response.name + " <span class='dashicons dashicons-share-alt2'></span></a>" );
             $( "#projectDesc" ).html( response.description );
             $( "#projectCreator" ).html( "<br><img src='" + response.creator.avatar_url + "'> <span>Created By " + response.creator.name + "</span><br>" );
             if ( response.todos.length === 0 ) {
                 $( "#projectTodo" ).append( "<li><em>There are no todo lists for this project.</em></li>" );
             } else {
                 $.each( response.todos, function( index, todo ) {
-                    $( "#projectTodo" ).append( "<li><strong>" + todo.name + "</strong> <a href='#' class='expandTodo' data-url='" + todo.url + "'>[Expand]</a><br><em class='tdesc'></em><ol></ol></li>" );
+                    $( "#projectTodo" ).append( "<li><strong>" + todo.name + "</strong> <a href='#' class='expandTodo' data-url='" + todo.url + "'>[Expand]</a><br><br><em class='tdesc'></em><ol></ol></li>" );
                 } );
             }
             $( "#ajaxLoading" ).hide();
