@@ -1,7 +1,7 @@
 jQuery( document ).ready( function( $ ) {
     $( "#projectList" ).val( '' );
     $( "#postList" ).val( '' );
-    $( "#todoInfo,#todoSelected" ).hide();
+   
 
 
     $( "#projectList" ).change( function() {
@@ -121,7 +121,7 @@ jQuery( document ).ready( function( $ ) {
         }
         $.post( ajax_object.ajax_url, data, function( response ) {
             response = $.parseJSON( response );
-            $( "#projectName" ).html( response.name );
+            $( "#projectName" ).html("<a href='https://basecamp.com/" + bc_account + "/projects/" + response.id + "' target='_blank'>" + response.name + "</a>");
             $( "#projectDesc" ).html( response.description );
             $( "#projectCreator" ).html( "<br><img src='" + response.creator.avatar_url + "'> <span>Created By " + response.creator.name + "</span><br>" );
             if ( response.todos.length === 0 ) {

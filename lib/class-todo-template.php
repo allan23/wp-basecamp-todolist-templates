@@ -76,7 +76,7 @@ class Todo_Template extends Basecamp_API {
 			if ( $refresh_token ) {
 				$loadPage = "admin_page";
 			}
-			add_submenu_page( "edit.php?post_type=bc_todo", "Assign to Project", "Assign Project", "publish_pages", "todolist", array( $this, $loadPage ) );
+			add_submenu_page( "edit.php?post_type=bc_todo", "Create Todo List", "Create Todo List", "publish_pages", "todolist", array( $this, $loadPage ) );
 		}
 
 		add_submenu_page( "edit.php?post_type=bc_todo", "App Setup", "App Setup", "manage_options", "todosetup", array( $this, "setup_page" ) );

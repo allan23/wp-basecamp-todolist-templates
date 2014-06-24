@@ -85,3 +85,7 @@ a.remove_todo{
     padding-top:25px;
     padding-bottom:25px;
 }
+
+#todoInfo,#todoSelected,#projectDetails{
+    display:none;
+}

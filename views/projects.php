@@ -7,7 +7,7 @@
     <div class="wrap">
         <div class="bct_box" style="float:left;">
             <div class="bct_content">
-                <h2><img src="<?php echo plugin_dir_url( __FILE__ ) . "../assets/images/basecampicon_lg.png"; ?>" id="bc_logo" alt="Basecamp"> Assign Todo List to Project</h2>
+                <h2><img src="<?php echo plugin_dir_url( __FILE__ ) . "../assets/images/basecampicon_lg.png"; ?>" id="bc_logo" alt="Basecamp"> Create Todo List</h2>
 
 
                 <div class="bct_content bct_left">
