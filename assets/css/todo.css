@@ -73,3 +73,6 @@ a.remove_todo{
 #projectTodo li ol li,#theTodoList li {
     list-style:decimal;
 }
+#projectList,#postList {
+   width:100%;
+}

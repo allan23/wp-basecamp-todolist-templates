@@ -128,7 +128,7 @@ jQuery( document ).ready( function( $ ) {
                 $( "#projectTodo" ).append( "<li><em>There are no todo lists for this project.</em></li>" );
             } else {
                 $.each( response.todos, function( index, todo ) {
-                    $( "#projectTodo" ).append( "<li><strong>" + todo.name + "</strong> <a href='#' class='expandTodo' data-url='" + todo.url + "'>[Expand]</a><br><br><em class='tdesc'></em><ol></ol></li>" );
+                    $( "#projectTodo" ).append( "<li><a href='https://basecamp.com/" + bc_account + "/projects/" + response.id + "/todolists/" + todo.id + "' target='_blank'><strong>" + todo.name + "</strong> <span class='dashicons dashicons-share-alt2'></span></a> - <a href='#' class='expandTodo' data-url='" + todo.url + "'>[Expand]</a><br><br><em class='tdesc'></em><ol></ol></li>" );
                 } );
             }
             $( "#ajaxLoading" ).hide();
